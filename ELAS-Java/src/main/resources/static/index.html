@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ELAS+ | Employee Management System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#"><span class="brand-mark">E+</span><span><b>ELAS+</b><small>People • Attendance • Talent</small></span></a>
+    <div id="top-user" class="top-user" hidden></div>
+  </header>
+
+  <main class="page">
+    <section id="auth-view" class="auth-layout">
+      <div class="hero">
+        <span class="eyebrow">EMPLOYEE MANAGEMENT PLATFORM</span>
+        <h1>Manage people.<br><span>Discover potential.</span></h1>
+        <p>One place for attendance, leave requests, employee resumes, unique talents and smart project allocation.</p>
+        <div class="hero-tags"><span>✓ Attendance</span><span>✓ Leave</span><span>✓ Talent matching</span></div>
+      </div>
+      <div class="panel login-card">
+        <span class="eyebrow">WELCOME BACK</span>
+        <h2>Sign in to ELAS+</h2>
+        <p class="muted">Use one of the demo accounts below.</p>
+        <form id="login-form">
+          <label for="login-email">Email address</label>
+          <input id="login-email" type="email" placeholder="Enter email" required>
+          <label for="login-password">Password</label>
+          <input id="login-password" type="password" placeholder="Enter password" required>
+          <button class="btn primary full" type="submit">Sign in</button>
+          <p id="login-error" class="error" role="alert"></p>
+        </form>
+        <div class="demo-box">
+          <b>Demo login</b>
+          <p><strong>Admin:</strong> admin@elas.com / admin123</p>
+          <p><strong>Employee:</strong> emp101@elas.com / emp123</p>
+          <button class="btn light full" type="button" onclick="fillLogin('admin@elas.com','admin123')">Use Admin Login</button>
+          <button class="btn light full" type="button" onclick="fillLogin('emp101@elas.com','emp123')">Use Employee Login</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="admin-view" hidden>
+      <div class="heading-row">
+        <div><span class="eyebrow">ADMIN PORTAL</span><h1>Admin dashboard</h1><p class="muted">Manage your employees and discover the right talent for every project.</p></div>
+        <button class="btn outline" onclick="logout()">Log out</button>
+      </div>
+      <div class="stats-grid">
+        <article class="stat-card"><span>Total employees</span><strong id="stat-employees">10</strong></article>
+        <article class="stat-card"><span>Present today</span><strong id="stat-present">0</strong></article>
+        <article class="stat-card"><span>Pending leave requests</span><strong id="stat-pending">0</strong></article>
+        <article class="stat-card"><span>Active projects</span><strong id="stat-projects">0</strong></article>
+      </div>
+      <section class="panel">
+        <nav class="tabs" aria-label="Admin sections">
+          <button class="tab active" data-admin-tab="employees" onclick="showAdminTab('employees')">Employees</button>
+          <button class="tab" data-admin-tab="talents" onclick="showAdminTab('talents')">Resumes & Talents</button>
+          <button class="tab" data-admin-tab="projects" onclick="showAdminTab('projects')">Projects & Matching</button>
+          <button class="tab" data-admin-tab="attendance" onclick="showAdminTab('attendance')">Attendance</button>
+          <button class="tab" data-admin-tab="leaves" onclick="showAdminTab('leaves')">Leave Requests</button>
+          <button class="tab" data-admin-tab="analytics" onclick="showAdminTab('analytics')">Reports & Analytics</button>
+        </nav>
+
+        <div id="admin-employees" class="tab-panel">
+          <div class="section-title"><div><h2>Employee directory</h2><p class="muted">10 sample employee records are included.</p></div><input id="employee-search" class="search" placeholder="Search name, ID or skill" oninput="renderEmployees()"></div>
+          <div class="table-wrap"><table><thead><tr><th>ID</th><th>Employee</th><th>Department</th><th>Skills</th><th>Unique talent</th></tr></thead><tbody id="employee-table"></tbody></table></div>
+        </div>
+
+        <div id="admin-talents" class="tab-panel" hidden>
+          <h2>Resume & talent directory</h2>
+          <p class="muted">Review employee skills, qualifications and uploaded PDF resumes.</p>
+          <div id="talent-list" class="talent-grid"></div>
+        </div>
+
+        <div id="admin-projects" class="tab-panel" hidden>
+          <div class="two-col">
+            <div>
+              <h2>Create a project</h2>
+              <form id="project-form" class="form-grid">
+                <div class="wide"><label for="project-name">Project name</label><input id="project-name" required placeholder="e.g. Smart Attendance App"></div>
+                <div class="wide"><label for="project-skills">Required skills (comma separated)</label><input id="project-skills" required placeholder="Java, MySQL, HTML"></div>
+                <div><label for="project-members">Team size</label><input id="project-members" type="number" min="1" max="10" value="3" required></div>
+                <div class="wide"><button class="btn primary" type="submit">Create project</button></div>
+              </form>
+            </div>
+            <div class="info-card"><h3>How smart matching works</h3><p>The system compares the project's required skills with each employee's skills and proficiency. It displays a match percentage to help the admin shortlist a team.</p></div>
+          </div>
+          <h2 class="spaced">Project list & employee matching</h2>
+          <div id="project-list"></div>
+        </div>
+
+        <div id="admin-attendance" class="tab-panel" hidden>
+          <h2>Attendance records</h2>
+          <div class="table-wrap"><table><thead><tr><th>Employee</th><th>Date</th><th>Status</th><th>Check-in</th><th>Remarks</th></tr></thead><tbody id="attendance-table"></tbody></table></div>
+        </div>
+
+        <div id="admin-leaves" class="tab-panel" hidden>
+          <h2>Leave requests</h2>
+          <div class="table-wrap"><table><thead><tr><th>Employee</th><th>Leave type</th><th>Dates</th><th>Days</th><th>Reason</th><th>Status</th><th>Action</th></tr></thead><tbody id="leave-table"></tbody></table></div>
+        </div>
+
+        <div id="admin-analytics" class="tab-panel" hidden>
+          <div class="section-title">
+            <div>
+              <h2>Reports & Analytics</h2>
+              <p class="muted">Admin-only overview of attendance, leave requests, employee project completion and work hours.</p>
+            </div>
+            <div class="analytics-actions">
+              <label for="analytics-from">From</label>
+              <input id="analytics-from" type="date">
+              <label for="analytics-to">To</label>
+              <input id="analytics-to" type="date">
+              <button class="btn light" type="button" onclick="renderAnalytics()">Apply filter</button>
+              <button class="btn primary" type="button" onclick="downloadAnalyticsCSV()">Download CSV</button>
+            </div>
+          </div>
+          <div class="stats-grid analytics-stats">
+            <article class="stat-card"><span>Attendance records</span><strong id="analytics-records">0</strong></article>
+            <article class="stat-card"><span>Present / WFH</span><strong id="analytics-present">0</strong></article>
+            <article class="stat-card"><span>Absent</span><strong id="analytics-absent">0</strong></article>
+            <article class="stat-card"><span>Leave requests</span><strong id="analytics-leaves">0</strong></article>
+          </div>
+          <div class="analytics-grid">
+            <article class="chart-card">
+              <h3>Attendance overview</h3>
+              <canvas id="attendance-chart"></canvas>
+            </article>
+            <article class="chart-card">
+              <h3>Leave request status</h3>
+              <canvas id="leave-chart"></canvas>
+            </article>
+            <article class="chart-card">
+              <h3>Monthly attendance trend</h3>
+              <canvas id="monthly-chart"></canvas>
+            </article>
+            <article class="chart-card">
+              <h3>Department-wise attendance</h3>
+              <canvas id="department-chart"></canvas>
+            </article>
+          </div>
+          <h3 class="spaced">All employee reports</h3>
+          <p class="muted">Admin can view attendance and leave summaries for every employee.</p>
+          <div class="table-wrap"><table><thead><tr><th>Employee</th><th>Department</th><th>Present / WFH</th><th>Absent</th><th>Approved leaves</th><th>Pending leaves</th><th>Rejected leaves</th><th>Attendance %</th><th>Projects assigned</th><th>Completed</th><th>In progress</th><th>Average completion</th><th>Total hours worked</th></tr></thead><tbody id="all-employee-report-table"></tbody></table></div>
+          <p class="muted analytics-note">Charts and reports use records saved in this browser. Project progress and total hours are entered by employees; admin can view the team-wide summary.</p>
+        </div>
+      </section>
+      <p class="note">Demo version: records are stored in this browser only.</p>
+    </section>
+
+    <section id="employee-view" hidden>
+      <div class="heading-row">
+        <div><span class="eyebrow">EMPLOYEE PORTAL</span><h1 id="employee-welcome">Welcome</h1><p class="muted">Update your profile, resume, attendance and leave requests.</p></div>
+        <button class="btn outline" onclick="logout()">Log out</button>
+      </div>
+      <div class="stats-grid">
+        <article class="stat-card"><span>Leave balance</span><strong id="emp-balance">12</strong></article>
+        <article class="stat-card"><span>Today's attendance</span><strong id="emp-status">Not marked</strong></article>
+        <article class="stat-card"><span>My projects</span><strong id="emp-project-count">0</strong></article>
+      </div>
+      <section class="panel">
+        <nav class="tabs" aria-label="Employee sections">
+          <button class="tab active" data-emp-tab="profile" onclick="showEmployeeTab('profile')">My Profile & Resume</button>
+          <button class="tab" data-emp-tab="attendance" onclick="showEmployeeTab('attendance')">Attendance</button>
+          <button class="tab" data-emp-tab="leave" onclick="showEmployeeTab('leave')">Apply for Leave</button>
+          <button class="tab" data-emp-tab="projects" onclick="showEmployeeTab('projects')">My Projects</button>
+          <button class="tab" data-emp-tab="reports" onclick="showEmployeeTab('reports')">My Reports</button>
+        </nav>
+        <div id="employee-profile" class="tab-panel">
+          <h2>My profile and talents</h2>
+          <div id="my-profile" class="profile-summary"></div>
+          <form id="profile-form" class="form-grid">
+            <div><label for="profile-qualification">Qualification</label><input id="profile-qualification" placeholder="e.g. B.Tech CSE"></div>
+            <div><label for="profile-skills">Technical skills (comma separated)</label><input id="profile-skills" placeholder="Java, MySQL, HTML"></div>
+            <div><label for="profile-talent">Unique talent</label><input id="profile-talent" placeholder="e.g. Leadership"></div>
+            <div><label for="profile-level">Skill level</label><select id="profile-level"><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select></div>
+            <div class="wide"><label for="resume-file">Upload resume (PDF, max 2 MB)</label><input id="resume-file" type="file" accept=".pdf,application/pdf"></div>
+            <div class="wide"><button class="btn primary" type="submit">Save profile</button><span id="resume-status" class="muted inline-status"></span></div>
+          </form>
+        </div>
+        <div id="employee-attendance" class="tab-panel" hidden>
+          <h2>Mark attendance</h2>
+          <form id="attendance-form" class="form-grid">
+            <div><label for="attendance-date">Date</label><input id="attendance-date" type="date" required></div>
+            <div><label for="attendance-status">Status</label><select id="attendance-status"><option>Present</option><option>Work From Home</option><option>Absent</option></select></div>
+            <div><label for="attendance-time">Check-in time</label><input id="attendance-time" type="time" required></div>
+            <div><label for="attendance-remarks">Remarks</label><input id="attendance-remarks" placeholder="Optional"></div>
+            <div class="wide"><button class="btn primary" type="submit">Save attendance</button></div>
+          </form>
+          <h3 class="spaced">My attendance history</h3>
+          <div class="table-wrap"><table><thead><tr><th>Date</th><th>Status</th><th>Check-in</th><th>Remarks</th></tr></thead><tbody id="my-attendance-table"></tbody></table></div>
+        </div>
+        <div id="employee-leave" class="tab-panel" hidden>
+          <h2>Apply for leave</h2>
+          <form id="leave-form" class="form-grid">
+            <div><label for="leave-type">Leave type</label><select id="leave-type"><option>Casual Leave</option><option>Sick Leave</option><option>Earned Leave</option><option>Other</option></select></div>
+            <div><label for="leave-from">From date</label><input id="leave-from" type="date" required></div>
+            <div><label for="leave-to">To date</label><input id="leave-to" type="date" required></div>
+            <div class="wide"><label for="leave-reason">Reason</label><textarea id="leave-reason" rows="3" required placeholder="Enter your reason"></textarea></div>
+            <div class="wide"><button class="btn primary" type="submit">Submit leave request</button></div>
+          </form>
+          <h3 class="spaced">My leave history</h3>
+          <div class="table-wrap"><table><thead><tr><th>Type</th><th>From</th><th>To</th><th>Days</th><th>Status</th><th>Admin remarks</th></tr></thead><tbody id="my-leave-table"></tbody></table></div>
+        </div>
+        <div id="employee-projects" class="tab-panel" hidden>
+          <h2>My assigned projects</h2>
+          <div id="my-projects"></div>
+        </div>
+        <div id="employee-reports" class="tab-panel" hidden>
+          <h2>My Attendance & Leave Reports</h2>
+          <p class="muted">This report is private to your employee account. Only your own attendance, leave and project activity are displayed here.</p>
+          <div class="stats-grid">
+            <article class="stat-card"><span>Present / WFH days</span><strong id="my-report-present">0</strong></article>
+            <article class="stat-card"><span>Absent days</span><strong id="my-report-absent">0</strong></article>
+            <article class="stat-card"><span>Attendance percentage</span><strong id="my-report-percentage">0%</strong></article>
+            <article class="stat-card"><span>Approved leave days</span><strong id="my-report-leave-days">0</strong></article>
+            <article class="stat-card"><span>Projects assigned</span><strong id="my-report-projects">0</strong></article>
+            <article class="stat-card"><span>Projects completed</span><strong id="my-report-completed">0</strong></article>
+            <article class="stat-card"><span>Average project completion</span><strong id="my-report-project-average">0%</strong></article>
+            <article class="stat-card"><span>Total hours worked</span><strong id="my-report-hours">0</strong></article>
+          </div>
+          <div class="analytics-grid">
+            <article class="chart-card">
+              <h3>My attendance overview</h3>
+              <canvas id="my-attendance-chart"></canvas>
+            </article>
+            <article class="chart-card">
+              <h3>My leave requests</h3>
+              <canvas id="my-leave-chart"></canvas>
+            </article>
+          </div>
+          <h3 class="spaced">My project contribution</h3>
+          <div class="table-wrap"><table><thead><tr><th>Project</th><th>Completion</th><th>Hours worked</th><th>Status</th><th>Last updated</th></tr></thead><tbody id="my-report-project-table"></tbody></table></div>
+          <h3 class="spaced">My attendance records</h3>
+          <div class="table-wrap"><table><thead><tr><th>Date</th><th>Status</th><th>Check-in</th><th>Remarks</th></tr></thead><tbody id="my-report-attendance-table"></tbody></table></div>
+          <h3 class="spaced">My leave records</h3>
+          <div class="table-wrap"><table><thead><tr><th>Leave type</th><th>From</th><th>To</th><th>Days</th><th>Status</th><th>Remarks</th></tr></thead><tbody id="my-report-leave-table"></tbody></table></div>
+        </div>
+      </section>
+    </section>
+  </main>
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+  <footer>ELAS+ · Employee Leave, Attendance, Talent Discovery & Smart Project Allocation</footer>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
